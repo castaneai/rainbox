@@ -26,10 +26,10 @@ type UserRespotiroy struct {
 	store *firestore.Client
 }
 
-func NewUserRepository(store *firestore.Client) (*UserRespotiroy, error) {
+func NewUserRepository(store *firestore.Client) *UserRespotiroy {
 	return &UserRespotiroy{
 		store: store,
-	}, nil
+	}
 }
 
 func (ur *UserRespotiroy) SignIn(ctx context.Context, fuser *auth.UserInfo) (*User, error) {

@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+const (
+	testUserID = "1c53d4e4-6c2a-4fb6-8ee2-be22b5f395ce"
+)
+
 func newTestFirebaseApp(ctx context.Context) (*firebase.App, error) {
 	return firebase.NewApp(ctx, nil)
 }
@@ -25,32 +29,29 @@ func newTestFirestore(ctx context.Context) (*firestore.Client, error) {
 func newTestFirebaseUser(ctx context.Context) (*auth.UserInfo, error) {
 	// TODO: mock...
 	return &auth.UserInfo{
-		UID:         "1c53d4e4-6c2a-4fb6-8ee2-be22b5f395ce",
+		UID:         testUserID,
 		DisplayName: "testUser",
 	}, nil
 }
 
-func TestSignIn(t *testing.T) {
-	ctx := context.Background()
+func newTestUser(ctx context.Context) (*User, error) {
 	store, err := newTestFirestore(ctx)
 	if err != nil {
-		t.Fatal(err)
+		return nil, err
 	}
-
-	repo, err := NewUserRepository(store)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	fuser, err := newTestFirebaseUser(ctx)
 	if err != nil {
-		t.Fatal(err)
+		return nil, err
 	}
+	repo := NewUserRepository(store)
+	return repo.SignIn(ctx, fuser)
+}
 
-	user, err := repo.SignIn(ctx, fuser)
+func TestSignIn(t *testing.T) {
+	ctx := context.Background()
+	user, err := newTestUser(ctx)
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, fuser.UID, user.UserID)
+	assert.Equal(t, testUserID, user.UserID)
 }
