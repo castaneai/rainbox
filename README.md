@@ -8,6 +8,7 @@ rainbox api server with GCP
 A Test suite requires GCP credentials which have permission to Cloud Firestore.
 
 ```sh
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/key.json
+gcloud beta emulators firestore start
+export FIRESTORE_EMULATOR_HOST=localhost:8812
 go test ./...
 ```

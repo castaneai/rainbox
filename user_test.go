@@ -1,12 +1,13 @@
 package rainbox
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"firebase.google.com/go"
+	"testing"
+
+	"cloud.google.com/go/firestore"
 	"firebase.google.com/go/auth"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func newTestFirebaseApp(ctx context.Context) (*firebase.App, error) {
@@ -24,12 +25,12 @@ func newTestFirestore(ctx context.Context) (*firestore.Client, error) {
 func newTestFirebaseUser(ctx context.Context) (*auth.UserInfo, error) {
 	// TODO: mock...
 	return &auth.UserInfo{
-		UID: "1c53d4e4-6c2a-4fb6-8ee2-be22b5f395ce",
+		UID:         "1c53d4e4-6c2a-4fb6-8ee2-be22b5f395ce",
 		DisplayName: "testUser",
 	}, nil
 }
 
-func TestSignUp(t *testing.T) {
+func TestSignIn(t *testing.T) {
 	ctx := context.Background()
 	store, err := newTestFirestore(ctx)
 	if err != nil {
