@@ -1,4 +1,4 @@
-package middleware
+package httpapi
 
 import (
 	"context"
@@ -8,7 +8,9 @@ import (
 	"github.com/castaneai/rainbox/pkg/rainbox"
 )
 
-var UserCtxKey = &contextKey{"User"}
+type Middleware func(http.Handler) http.Handler
+
+var userIDCtxKey = &contextKey{"UserID"}
 
 // contextKey is a value for use with context.WithValue. It's used as
 // a pointer so it fits in an interface{} without allocation. This technique
@@ -21,7 +23,7 @@ func (k *contextKey) String() string {
 	return k.name
 }
 
-func Authenticator(v rainbox.Verifier, us *rainbox.UserService) Middleware {
+func Authenticator(v rainbox.Verifier) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
@@ -31,20 +33,10 @@ func Authenticator(v rainbox.Verifier, us *rainbox.UserService) Middleware {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
-			user, err := us.Get(ctx, userID)
-			if err != nil {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				return
-			}
-			ctx = newContext(ctx, user)
+			ctx = context.WithValue(ctx, userIDCtxKey, userID)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
-}
-
-func newContext(ctx context.Context, user *rainbox.User) context.Context {
-	ctx = context.WithValue(ctx, UserCtxKey, user)
-	return ctx
 }
 
 func idTokenFromHeader(r *http.Request) string {

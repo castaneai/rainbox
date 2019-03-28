@@ -3,12 +3,17 @@ package httpapi
 import (
 	"context"
 	"fmt"
+	"github.com/google/uuid"
 
 	"github.com/castaneai/rainbox/pkg/rainbox"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 )
+
+func newRandomUserID() rainbox.UserID {
+	return rainbox.UserID(uuid.Must(uuid.NewRandom()).String())
+}
 
 func newTestFirebaseApp(ctx context.Context) (*firebase.App, error) {
 	return firebase.NewApp(ctx, nil)

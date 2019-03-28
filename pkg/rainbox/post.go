@@ -19,7 +19,7 @@ type Post struct {
 
 func NewPost(author *User, imageURLs []string) *Post {
 	return &Post{
-		AuthorUserID: author.id,
+		AuthorUserID: author.ID,
 		ImageURLs:    imageURLs,
 	}
 }

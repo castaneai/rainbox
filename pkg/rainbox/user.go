@@ -16,8 +16,15 @@ const (
 )
 
 type User struct {
-	id          UserID
-	DisplayName string `firestore:"displayName"`
+	ID          UserID `json:"id" firestore:"-"`
+	DisplayName string `json:"displayName" firestore:"displayName"`
+}
+
+func newUser(id UserID, displayName string) *User {
+	return &User{
+		ID:          id,
+		DisplayName: displayName,
+	}
 }
 
 type UserService struct {
@@ -28,7 +35,8 @@ func NewUserService(repo UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (sv *UserService) Register(ctx context.Context, user *User) error {
+func (sv *UserService) Register(ctx context.Context, userID UserID, displayName string) error {
+	user := newUser(userID, displayName)
 	if err := sv.repo.Create(ctx, user); err != nil {
 		return err
 	}
@@ -66,12 +74,12 @@ func (repo *FirestoreUserRepository) Get(ctx context.Context, id UserID) (*User,
 	if err := ds.DataTo(&user); err != nil {
 		return nil, err
 	}
-	user.id = UserID(ds.Ref.ID)
+	user.ID = UserID(ds.Ref.ID)
 	return user, nil
 }
 
 func (repo *FirestoreUserRepository) Create(ctx context.Context, u *User) error {
-	ref := repo.store.Doc("users/" + string(u.id))
+	ref := repo.store.Doc("users/" + string(u.ID))
 	if _, err := ref.Create(ctx, u); err != nil {
 		return err
 	}

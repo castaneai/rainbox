@@ -1,7 +1,10 @@
 package main
 
 import (
+	"context"
+	"firebase.google.com/go"
 	"fmt"
+	"github.com/castaneai/rainbox/pkg/rainbox"
 	"log"
 	"net/http"
 	"os"
@@ -10,7 +13,22 @@ import (
 )
 
 func main() {
-	handler := httpapi.NewHandler()
+	ctx :=context.Background()
+	app, err := firebase.NewApp(ctx, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	store, err := app.Firestore(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	auth, err := app.Auth(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	verifier := rainbox.NewFirebaseAuthVerifier(auth)
+
+	handler := httpapi.NewHandler(verifier, store)
 
 	addr := ":8080"
 	if p := os.Getenv("PORT"); p != "" {

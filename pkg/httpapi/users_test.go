@@ -17,8 +17,8 @@ func requestWithUser(req *http.Request, user *clientUser) *http.Request {
 
 func TestAuth(t *testing.T) {
 	ctx := context.Background()
-	user1 := &clientUser{ID: "user1", IDToken: "token1"}
-	user2 := &clientUser{ID: "user2", IDToken: "token2"}
+	user1 := &clientUser{ID: newRandomUserID(), IDToken: "token1"}
+	user2 := &clientUser{ID: newRandomUserID(), IDToken: "token2"}
 	v := NewTestClientVerifier([]*clientUser{user1, user2})
 	store, err := newTestFirestore(ctx)
 	if err != nil {
@@ -31,7 +31,7 @@ func TestAuth(t *testing.T) {
 
 	// unauthorized
 	{
-		req := httptest.NewRequest("GET", "/users/profile", nil)
+		req := httptest.NewRequest("POST", "/users", nil)
 		rec := httptest.NewRecorder()
 		h.ServeHTTP(rec, req)
 		assert.Equal(t, http.StatusUnauthorized, rec.Code)
@@ -39,10 +39,21 @@ func TestAuth(t *testing.T) {
 
 	// authorized as user1
 	{
-		req := httptest.NewRequest("GET", "/users/profile", nil)
-		req = requestWithUser(req, user1)
-		rec := httptest.NewRecorder()
-		h.ServeHTTP(rec, req)
-		assert.Equal(t, http.StatusOK, rec.Code)
+		{
+			req := httptest.NewRequest("POST", "/users", nil)
+			req = requestWithUser(req, user1)
+			rec := httptest.NewRecorder()
+			h.ServeHTTP(rec, req)
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+
+		{
+			req := httptest.NewRequest("GET", "/users/me", nil)
+			req = requestWithUser(req, user1)
+			rec := httptest.NewRecorder()
+			h.ServeHTTP(rec, req)
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
 	}
+
 }
