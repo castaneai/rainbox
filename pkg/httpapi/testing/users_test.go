@@ -1,4 +1,4 @@
-package httpapi
+package testing
 
 import (
 	"fmt"
