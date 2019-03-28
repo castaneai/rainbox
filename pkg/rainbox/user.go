@@ -1,4 +1,4 @@
-package pkg
+package rainbox
 
 import (
 	"context"
@@ -7,19 +7,17 @@ import (
 	"google.golang.org/grpc/status"
 
 	"cloud.google.com/go/firestore"
-	"firebase.google.com/go/auth"
+)
+
+type UserID string
+
+const (
+	InvalidUserID = UserID("")
 )
 
 type User struct {
-	id          string
+	id          UserID
 	DisplayName string `firestore:"displayName"`
-}
-
-func NewUser(fuser *auth.UserInfo) *User {
-	return &User{
-		id:          fuser.UID,
-		DisplayName: fuser.DisplayName,
-	}
 }
 
 type UserService struct {
@@ -30,20 +28,19 @@ func NewUserService(repo UserRepository) *UserService {
 	return &UserService{repo: repo}
 }
 
-func (sv *UserService) SignUp(ctx context.Context, fuser *auth.UserInfo) (*User, error) {
-	u := NewUser(fuser)
-	if err := sv.repo.Create(ctx, u); err != nil {
-		return nil, err
+func (sv *UserService) Register(ctx context.Context, user *User) error {
+	if err := sv.repo.Create(ctx, user); err != nil {
+		return err
 	}
-	return u, nil
+	return nil
 }
 
-func (sv *UserService) SignIn(ctx context.Context, userID string) (*User, error) {
+func (sv *UserService) Get(ctx context.Context, userID UserID) (*User, error) {
 	return sv.repo.Get(ctx, userID)
 }
 
 type UserRepository interface {
-	Get(ctx context.Context, id string) (*User, error)
+	Get(ctx context.Context, id UserID) (*User, error)
 	Create(ctx context.Context, u *User) error
 }
 
@@ -51,12 +48,12 @@ type FirestoreUserRepository struct {
 	store *firestore.Client
 }
 
-func NewFirestoreUserRepository(store *firestore.Client) *FirestoreUserRepository {
+func NewFirestoreUserRepository(store *firestore.Client) UserRepository {
 	return &FirestoreUserRepository{store: store}
 }
 
-func (repo *FirestoreUserRepository) Get(ctx context.Context, id string) (*User, error) {
-	ref := repo.store.Doc("users/" + id)
+func (repo *FirestoreUserRepository) Get(ctx context.Context, id UserID) (*User, error) {
+	ref := repo.store.Doc("users/" + string(id))
 	ds, err := ref.Get(ctx)
 	if err != nil && status.Code(err) == codes.NotFound {
 		return nil, nil
@@ -69,12 +66,12 @@ func (repo *FirestoreUserRepository) Get(ctx context.Context, id string) (*User,
 	if err := ds.DataTo(&user); err != nil {
 		return nil, err
 	}
-	user.id = ds.Ref.ID
+	user.id = UserID(ds.Ref.ID)
 	return user, nil
 }
 
 func (repo *FirestoreUserRepository) Create(ctx context.Context, u *User) error {
-	ref := repo.store.Doc("users/" + u.id)
+	ref := repo.store.Doc("users/" + string(u.id))
 	if _, err := ref.Create(ctx, u); err != nil {
 		return err
 	}

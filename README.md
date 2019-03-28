@@ -3,9 +3,15 @@ rainbox
 
 rainbox api server with GCP
 
+## Tips
+
+### Authentication
+
+Rainbox API server has **no** authentication logic and entrusts it to [Firebase Authentication](https://firebase.google.com/docs/auth)
+
 ## Testing
 
-A Test suite requires GCP credentials which have permission to Cloud Firestore.
+You can run tests with [Cloud Firestore Local Emulator](https://cloud.google.com/sdk/gcloud/reference/beta/emulators/firestore/).
 
 ```sh
 gcloud beta emulators firestore start

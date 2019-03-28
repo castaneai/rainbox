@@ -5,9 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	rainbox "github.com/castaneai/rainbox/pkg"
-
-	"firebase.google.com/go/auth"
+	"github.com/castaneai/rainbox/pkg/rainbox"
 )
 
 var UserCtxKey = &contextKey{"User"}
@@ -23,21 +21,17 @@ func (k *contextKey) String() string {
 	return k.name
 }
 
-func Authenticator(ac *auth.Client, us *rainbox.UserService) Middleware {
+func Authenticator(v rainbox.Verifier, us *rainbox.UserService) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			idToken := idTokenFromHeader(r)
-			token, err := ac.VerifyIDToken(ctx, idToken)
-			if err != nil {
+			userID, err := v.Verify(ctx, idToken)
+			if err != nil || userID == rainbox.InvalidUserID {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
-			if token == nil {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				return
-			}
-			user, err := us.SignIn(ctx, token.UID)
+			user, err := us.Get(ctx, userID)
 			if err != nil {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return

@@ -1,4 +1,4 @@
-package pkg
+package rainbox
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 type Post struct {
-	AuthorUserID string    `firestore:"authorUserId"`
+	AuthorUserID UserID    `firestore:"authorUserId"`
 	ThumbnailURL string    `firestore:"thumbnailUrl"`
 	ImageURLs    []string  `firestore:"imageUrls"`
 	Tags         []string  `firestore:"tags"`
