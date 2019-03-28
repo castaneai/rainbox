@@ -1,23 +1,25 @@
-package rainbox
+package pkg
 
 import (
 	"context"
+	"time"
 
 	"cloud.google.com/go/firestore"
 )
 
 type Post struct {
-	authorUserID string
-	AuthorRef    *firestore.DocumentRef `firestore:"authorRef"`
-	ThumbnailURL string                 `firestore:"thumbnailUrl"`
-	ImageURLs    []string               `firestore:"imageUrls"`
-	Tags         []string               `firestore:"tags"`
-	Likes        int                    `firestore:"likes"`
+	AuthorUserID string    `firestore:"authorUserId"`
+	ThumbnailURL string    `firestore:"thumbnailUrl"`
+	ImageURLs    []string  `firestore:"imageUrls"`
+	Tags         []string  `firestore:"tags"`
+	Likes        int       `firestore:"likes"`
+	CreatedAt    time.Time `firestore:"createdAt"`
+	UpdatedAt    time.Time `firestore:"updatedAt"`
 }
 
 func NewPost(author *User, imageURLs []string) *Post {
 	return &Post{
-		authorUserID: author.UserID,
+		AuthorUserID: author.id,
 		ImageURLs:    imageURLs,
 	}
 }
@@ -33,7 +35,6 @@ func NewPostRepository(store *firestore.Client) *PostRepository {
 }
 
 func (pr *PostRepository) Save(ctx context.Context, post *Post) error {
-	post.AuthorRef = pr.store.Doc("users/" + post.authorUserID)
 	if _, _, err := pr.store.Collection("posts").Add(ctx, post); err != nil {
 		return err
 	}
