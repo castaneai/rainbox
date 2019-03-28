@@ -30,7 +30,7 @@ func Authenticator(ac *auth.Client, us *rainbox.UserService) Middleware {
 			idToken := idTokenFromHeader(r)
 			token, err := ac.VerifyIDToken(ctx, idToken)
 			if err != nil {
-				http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 				return
 			}
 			if token == nil {

@@ -10,8 +10,7 @@ import (
 )
 
 func main() {
-	r := chi.NewRouter()
-	r.Route("/users", routeUsers)
+	r := newRouter()
 
 	addr := ":8080"
 	if p := os.Getenv("PORT"); p != "" {
@@ -19,4 +18,10 @@ func main() {
 	}
 	log.Printf("Listening on %s...", addr)
 	log.Fatal(http.ListenAndServe(addr, r))
+}
+
+func newRouter() http.Handler {
+	r := chi.NewRouter()
+	r.Route("/users", routeUsers)
+	return r
 }
