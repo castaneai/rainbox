@@ -2,18 +2,19 @@ package main
 
 import (
 	"context"
-	"firebase.google.com/go"
 	"fmt"
-	"github.com/castaneai/rainbox/pkg/rainbox"
 	"log"
 	"net/http"
 	"os"
+
+	firebase "firebase.google.com/go"
+	"github.com/castaneai/rainbox/pkg/rainbox"
 
 	"github.com/castaneai/rainbox/pkg/httpapi"
 )
 
 func main() {
-	ctx :=context.Background()
+	ctx := context.Background()
 	app, err := firebase.NewApp(ctx, nil)
 	if err != nil {
 		log.Fatal(err)

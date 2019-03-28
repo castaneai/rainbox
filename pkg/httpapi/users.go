@@ -40,7 +40,7 @@ func getMyUser(userID rainbox.UserID, us *rainbox.UserService, w http.ResponseWr
 	}
 
 	enc := json.NewEncoder(w)
-	if err := enc.Encode(user);err != nil{
+	if err := enc.Encode(user); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -49,7 +49,7 @@ func getMyUser(userID rainbox.UserID, us *rainbox.UserService, w http.ResponseWr
 func createUser(userID rainbox.UserID, us *rainbox.UserService, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	displayName := "new user"
-	if err := us.Register(ctx, userID, displayName);err != nil{
+	if err := us.Register(ctx, userID, displayName); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
