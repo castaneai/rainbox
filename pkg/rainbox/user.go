@@ -15,15 +15,26 @@ const (
 	InvalidUserID = UserID("")
 )
 
+type UserGrade int
+
+const (
+	UserGradeOutsider UserGrade = iota + 1
+	UserGradeNewbie
+	UserGradeModerator
+	UserGradeAdmin
+)
+
 type User struct {
-	ID          UserID `json:"id" firestore:"-"`
-	DisplayName string `json:"displayName" firestore:"displayName"`
+	ID          UserID    `json:"id" firestore:"-"`
+	DisplayName string    `json:"displayName" firestore:"displayName"`
+	Grade       UserGrade `json:"grade" firestore:"grade"`
 }
 
 func newUser(id UserID, displayName string) *User {
 	return &User{
 		ID:          id,
 		DisplayName: displayName,
+		Grade:       UserGradeOutsider,
 	}
 }
 
