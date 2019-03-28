@@ -7,6 +7,12 @@ import (
 	"net/http"
 	"os"
 
+	"firebase.google.com/go/auth"
+
+	"cloud.google.com/go/firestore"
+
+	"go.uber.org/dig"
+
 	firebase "firebase.google.com/go"
 	"github.com/castaneai/rainbox/pkg/rainbox"
 
@@ -15,26 +21,43 @@ import (
 
 func main() {
 	ctx := context.Background()
-	app, err := firebase.NewApp(ctx, nil)
-	if err != nil {
+	c := dig.New()
+	if err := setupDIContainer(ctx, c); err != nil {
 		log.Fatal(err)
 	}
-	store, err := app.Firestore(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	auth, err := app.Auth(ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	verifier := rainbox.NewFirebaseAuthVerifier(auth)
 
-	handler := httpapi.NewHandler(verifier, store)
-
-	addr := ":8080"
-	if p := os.Getenv("PORT"); p != "" {
-		addr = fmt.Sprintf(":%s", p)
+	if err := c.Invoke(func(verifier rainbox.Verifier, services rainbox.Services) error {
+		handler := httpapi.NewHandler(verifier, &services)
+		addr := ":8080"
+		if p := os.Getenv("PORT"); p != "" {
+			addr = fmt.Sprintf(":%s", p)
+		}
+		log.Printf("Listening on %s...", addr)
+		return http.ListenAndServe(addr, handler)
+	}); err != nil {
+		log.Fatal(err)
 	}
-	log.Printf("Listening on %s...", addr)
-	log.Fatal(http.ListenAndServe(addr, handler))
+}
+
+func setupDIContainer(ctx context.Context, c *dig.Container) error {
+	if err := c.Provide(func() (*firebase.App, error) {
+		return firebase.NewApp(ctx, nil)
+	}); err != nil {
+		return err
+	}
+	if err := c.Provide(func(app *firebase.App) (*firestore.Client, error) {
+		return app.Firestore(ctx)
+	}); err != nil {
+		return err
+	}
+	if err := c.Provide(func(auth *auth.Client) rainbox.Verifier {
+		return rainbox.NewFirebaseAuthVerifier(auth)
+	}); err != nil {
+		return err
+	}
+
+	if err := rainbox.SetupDIContainer(c); err != nil {
+		return err
+	}
+	return nil
 }

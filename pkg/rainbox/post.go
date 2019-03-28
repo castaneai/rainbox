@@ -24,19 +24,40 @@ func NewPost(author *User, imageURLs []string) *Post {
 	}
 }
 
-type PostRepository struct {
+type PostService struct {
+	repo PostRepository
+}
+
+func NewPostService(repo PostRepository) *PostService {
+	return &PostService{
+		repo: repo,
+	}
+}
+
+func (sv *PostService) CountAll(ctx context.Context) (int, error) {
+	return sv.repo.CountAll(ctx)
+}
+
+type PostRepository interface {
+	CountAll(context.Context) (int, error)
+}
+
+type FirestorePostRepository struct {
 	store *firestore.Client
 }
 
-func NewPostRepository(store *firestore.Client) *PostRepository {
-	return &PostRepository{
+func NewFirestorePostRepository(store *firestore.Client) PostRepository {
+	return &FirestorePostRepository{
 		store: store,
 	}
 }
 
-func (pr *PostRepository) Save(ctx context.Context, post *Post) error {
-	if _, _, err := pr.store.Collection("posts").Add(ctx, post); err != nil {
-		return err
+func (repo *FirestorePostRepository) CountAll(ctx context.Context) (int, error) {
+	// 😥
+	iter := repo.store.Collection("posts").DocumentRefs(ctx)
+	all, err := iter.GetAll()
+	if err != nil {
+		return 0, err
 	}
-	return nil
+	return len(all), nil
 }

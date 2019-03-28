@@ -1,11 +1,9 @@
 package httpapi
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -15,45 +13,31 @@ func requestWithUser(req *http.Request, user *clientUser) *http.Request {
 	return req
 }
 
-func TestAuth(t *testing.T) {
-	ctx := context.Background()
-	user1 := &clientUser{ID: newRandomUserID(), IDToken: "token1"}
-	user2 := &clientUser{ID: newRandomUserID(), IDToken: "token2"}
-	v := NewTestClientVerifier([]*clientUser{user1, user2})
-	store, err := newTestFirestore(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	h := NewHandler(v, store)
-	ts := httptest.NewServer(h)
-	defer ts.Close()
-
+func (suite *TestSuite) TestAuth() {
 	// unauthorized
 	{
 		req := httptest.NewRequest("POST", "/users", nil)
 		rec := httptest.NewRecorder()
-		h.ServeHTTP(rec, req)
-		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		suite.Handler.ServeHTTP(rec, req)
+		assert.Equal(suite.T(), http.StatusUnauthorized, rec.Code)
 	}
 
 	// authorized as user1
 	{
 		{
 			req := httptest.NewRequest("POST", "/users", nil)
-			req = requestWithUser(req, user1)
+			req = requestWithUser(req, testClientUser1)
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
-			assert.Equal(t, http.StatusOK, rec.Code)
+			suite.Handler.ServeHTTP(rec, req)
+			assert.Equal(suite.T(), http.StatusOK, rec.Code)
 		}
 
 		{
 			req := httptest.NewRequest("GET", "/users/me", nil)
-			req = requestWithUser(req, user1)
+			req = requestWithUser(req, testClientUser1)
 			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
-			assert.Equal(t, http.StatusOK, rec.Code)
+			suite.Handler.ServeHTTP(rec, req)
+			assert.Equal(suite.T(), http.StatusOK, rec.Code)
 		}
 	}
-
 }

@@ -8,6 +8,7 @@ require (
 	github.com/go-chi/chi v4.0.2+incompatible
 	github.com/google/uuid v1.1.1
 	github.com/stretchr/testify v1.3.0
+	go.uber.org/dig v1.7.0
 	golang.org/x/oauth2 v0.0.0-20190319182350-c85d3e98c914 // indirect
 	google.golang.org/grpc v1.19.0
 )
