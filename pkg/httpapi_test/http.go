@@ -3,8 +3,12 @@ package httpapi
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
+	"strings"
 	"testing"
 
 	"cloud.google.com/go/firestore"
@@ -28,6 +32,32 @@ func runWithHandler(t *testing.T, v rainbox.Verifier, f func(*testing.T, http.Ha
 	}); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func tryRequest(h http.Handler, method, path string, authUser *User, reqBody map[string]interface{}) *httptest.ResponseRecorder {
+	var body io.Reader
+	if reqBody != nil {
+		form := url.Values{}
+		for k, v := range reqBody {
+			form.Add(k, fmt.Sprintf("%s", v))
+		}
+		body = strings.NewReader(form.Encode())
+	}
+	req := httptest.NewRequest(method, path, body)
+	if strings.ToUpper(method) == "POST" {
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	}
+	if authUser != nil {
+		req = requestWithUser(req, authUser)
+	}
+	rec := httptest.NewRecorder()
+	h.ServeHTTP(rec, req)
+	return rec
+}
+
+func requestWithUser(req *http.Request, user *User) *http.Request {
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.IDToken))
+	return req
 }
 
 func setupDIContainerForTesting(ctx context.Context, c *dig.Container, v rainbox.Verifier) error {

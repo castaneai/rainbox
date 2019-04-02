@@ -1,7 +1,7 @@
 rainbox
 ============
 
-rainbox api server with GCP
+rainbox api server
 
 ## Tips
 
@@ -15,6 +15,6 @@ You can run tests with [Cloud Firestore Local Emulator](https://cloud.google.com
 
 ```sh
 gcloud beta emulators firestore start
-export FIRESTORE_EMULATOR_HOST=localhost:8812
+export FIRESTORE_EMULATOR_HOST=xxxx:yyyy
 go test ./...
 ```

@@ -1,39 +1,27 @@
 package httpapi
 
 import (
-	"fmt"
 	"net/http"
-	"net/http/httptest"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func requestWithUser(req *http.Request, user *User) *http.Request {
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", user.IDToken))
-	return req
-}
-
 func TestAuth(t *testing.T) {
-	u := newUser()
-	v := newStaticVerifier([]*User{u})
+	user1 := newUser()
+	v := newStaticVerifier([]*User{user1})
 
 	runWithHandler(t, v, func(t *testing.T, h http.Handler) {
 		// unauthorized
 		{
-			req := httptest.NewRequest("POST", "/users", nil)
-			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
-			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+			res := tryRequest(h, "POST", "/users", nil, nil)
+			assert.Equal(t, http.StatusUnauthorized, res.Code)
 		}
 
-		// authorized as user1
+		// create user record with auth
 		{
-			req := httptest.NewRequest("POST", "/users", nil)
-			req = requestWithUser(req, u)
-			rec := httptest.NewRecorder()
-			h.ServeHTTP(rec, req)
-			assert.Equal(t, http.StatusOK, rec.Code)
+			res := tryRequest(h, "POST", "/users", user1, nil)
+			assert.Equal(t, http.StatusOK, res.Code)
 		}
 	})
 }
