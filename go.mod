@@ -11,6 +11,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/stretchr/testify v1.3.0
+	github.com/unrolled/render v1.0.0 // indirect
 	go.uber.org/dig v1.7.0
 	golang.org/x/oauth2 v0.0.0-20190319182350-c85d3e98c914 // indirect
 	google.golang.org/grpc v1.19.0
