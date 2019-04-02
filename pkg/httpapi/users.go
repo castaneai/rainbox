@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/castaneai/rainbox/pkg/rainbox"
-
 	"github.com/go-chi/chi"
+	"gopkg.in/go-playground/validator.v9"
 )
 
 func usersApi(r chi.Router, v rainbox.Verifier, services *rainbox.Services) {
@@ -30,10 +30,25 @@ func getMyUser(userID rainbox.UserID, sv *rainbox.Services, w http.ResponseWrite
 	}
 }
 
+type createUserRequest struct {
+	DisplayName string `validate:"required,min=2,max=40"`
+}
+
 func createUser(userID rainbox.UserID, sv *rainbox.Services, w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	reqBody := &createUserRequest{DisplayName: r.FormValue("displayName")}
+	val := validator.New()
+	if err := val.Struct(reqBody); err != nil {
+		http.Error(w, http.StatusText(http.StatusUnprocessableEntity), http.StatusUnprocessableEntity)
+		return
+	}
+
 	ctx := r.Context()
-	displayName := "new user"
-	if err := sv.User.Register(ctx, userID, displayName); err != nil {
+	if err := sv.User.Register(ctx, userID, reqBody.DisplayName); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
