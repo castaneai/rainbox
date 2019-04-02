@@ -30,3 +30,23 @@ func countAllPosts(userID rainbox.UserID, sv *rainbox.Services, w http.ResponseW
 		return
 	}
 }
+
+type createPostRequest struct {
+	ImageURLs []string `validate:"required"`
+	Tags      []string `validate:""`
+}
+
+func createPost(userID rainbox.UserID, sv *rainbox.Services, w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	reqBody := &createPostRequest{
+		ImageURLs: r.FormValue("imageUrls"),
+		Tags:      r.FormValue("tags"),
+	}
+
+	sv.Post.Create(ctx)
+
+}
