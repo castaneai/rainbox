@@ -50,6 +50,11 @@ func setupDIContainer(ctx context.Context, c *dig.Container) error {
 	}); err != nil {
 		return err
 	}
+	if err := c.Provide(func(app *firebase.App) (*auth.Client, error) {
+		return app.Auth(ctx)
+	}); err != nil {
+		return err
+	}
 	if err := c.Provide(func(auth *auth.Client) rainbox.Verifier {
 		return rainbox.NewFirebaseAuthVerifier(auth)
 	}); err != nil {
