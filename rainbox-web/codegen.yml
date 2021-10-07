@@ -1,0 +1,13 @@
+overwrite: true
+schema: ../rainbox-bff/schema.gql
+documents:
+  - "./graphql/queries/*.graphql"
+generates:
+  graphql/generated.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+  ./graphql.schema.json:
+    plugins:
+      - "introspection"
