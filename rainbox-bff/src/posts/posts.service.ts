@@ -9,6 +9,9 @@ export class PostsService {
   }
 
   async findAll(postsArgs: PostsArgs): Promise<Post[]> {
-    return [];
+    return [
+      { id: 'test-id1', createdAt: new Date(), tags: ['tag1', 'tag2'] },
+      { id: 'test-id2', createdAt: new Date(), tags: ['tag3', 'tag4'] },
+    ];
   }
 }
