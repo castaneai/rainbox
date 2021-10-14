@@ -21,6 +21,7 @@ export type Post = {
   createdAt: Scalars['DateTime'];
   id: Scalars['ID'];
   tags: Array<Scalars['String']>;
+  thumbnailUrl: Scalars['String'];
 };
 
 export type Query = {
@@ -43,7 +44,7 @@ export type QueryPostsArgs = {
 export type PostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', id: string, tags: Array<string> }> };
+export type PostsQuery = { __typename?: 'Query', posts: Array<{ __typename?: 'Post', id: string, tags: Array<string>, thumbnailUrl: string }> };
 
 
 export const PostsDocument = gql`
@@ -51,6 +52,7 @@ export const PostsDocument = gql`
   posts {
     id
     tags
+    thumbnailUrl
   }
 }
     `;

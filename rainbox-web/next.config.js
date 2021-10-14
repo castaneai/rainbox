@@ -6,5 +6,10 @@ module.exports = {
   },
   publicRuntimeConfig: {
     APOLLO_URI: process.env.PUBLIC_APOLLO_URI,
+  },
+  images: {
+    domains: [
+      "placeimg.com"
+    ]
   }
 }

@@ -22,7 +22,16 @@ const Home: NextPage = () => {
         <div className={styles.description}>
           <ul>
             {postsData.map((post) => {
-              return <li key={post.id}>{post.tags.join(", ")}</li>;
+              return (
+                <li key={post.id}>
+                  <Image
+                    src={post.thumbnailUrl}
+                    alt="test"
+                    width={200}
+                    height={200}
+                  />
+                </li>
+              );
             })}
           </ul>
         </div>
