@@ -10,4 +10,7 @@ export class Post {
 
   @Field((type) => [String])
   tags: string[];
+
+  @Field()
+  thumbnailUrl: string;
 }
