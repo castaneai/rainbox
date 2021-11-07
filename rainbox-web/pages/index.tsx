@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
 import { usePostsQuery } from "../graphql/generated";
-import styles from "../styles/Home.module.css";
+import styles from "../styles/Gallery.module.css";
 
 const Home: NextPage = () => {
   const { data, refetch } = usePostsQuery();
@@ -16,19 +16,20 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className={styles.main}>
+      <header>
         <h1 className={styles.title}>rainbox</h1>
+      </header>
 
-        <div className={styles.description}>
-          <ul>
+      <main>
+        <div>
+          <ul className={styles.posts}>
             {postsData.map((post) => {
               return (
-                <li key={post.id}>
+                <li key={post.id} className={styles.post}>
                   <Image
+                    layout="fill"
                     src={post.thumbnailUrl}
                     alt="test"
-                    width={200}
-                    height={200}
                   />
                 </li>
               );
