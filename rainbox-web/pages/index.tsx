@@ -28,6 +28,7 @@ const Home: NextPage = () => {
                 <li key={post.id} className={styles.post}>
                   <Image
                     layout="fill"
+                    objectFit="cover"
                     src={post.thumbnailUrl}
                     alt="test"
                   />
